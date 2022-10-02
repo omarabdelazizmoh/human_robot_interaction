@@ -26,9 +26,14 @@ class Static_Obstacle_Avoidance:
         # print("Robot PosX: ", robot_posX)
         # print("Robot PosY: ", robot_posY)
         
-        # Testing for human proximity to robot
+        # Distance between robot and human
         dist = abs(human_posX - robot_posX)
+        
+        # Defining safe position for robot to move to when coming close to human in the passing scenario
+        self.safe_posX = human_posX
+        self.safe_posY = human_posY - 3
 
+        # Robot moving/stopping conditions
         if(dist < 3):
             
             # Setting robot speeds
