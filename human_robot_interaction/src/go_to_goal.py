@@ -22,8 +22,8 @@ class Husky:
         # when a message of type Pose is received.
         self.pose_subscriber = rospy.Subscriber('/husky_velocity_controller/odom', Odometry, self.update_pose)
 
-        self.goals_X = [1,1,1]
-        self.goals_Y = [2,2,2]
+        self.goals_X = [1,2,3]
+        self.goals_Y = [0,0,0]
 
         self.sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.callback)                                                
 
@@ -52,16 +52,10 @@ class Husky:
         
         self.robot_pose.x = data.pose.pose.position.x
         self.robot_pose.y = data.pose.pose.position.y
-        
-        # data.pose.pose.orientation.x = round(data.pose.pose.orientation.x, 4)
-        # data.pose.pose.orientation.y = round(data.pose.pose.orientation.y, 4)
-        # data.pose.pose.orientation.z = round(data.pose.pose.orientation.z, 4)
-        # data.pose.pose.orientation.w = round(data.pose.pose.orientation.w, 4)
 
         q = [data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w]
 
         (self.theta_x, self.theta_y, self.robot_pose.theta) = euler_from_quaternion(q)
-
         # print("Pose X Update: ", self.robot_pose.x)
 
 
