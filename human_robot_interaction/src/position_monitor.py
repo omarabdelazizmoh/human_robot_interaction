@@ -14,10 +14,10 @@ current_x = 0
 current_y = 0
 
 moveBindings = {
-        'w':(0,1),
-        'a':(-1,0),
-        's':(0,-1),
-        'd':(1,0)
+        'a':(0,1),
+        's':(-1,0),
+        'd':(0,-1),
+        'w':(1,0)
     }
 
 def getKey(settings, timeout):
