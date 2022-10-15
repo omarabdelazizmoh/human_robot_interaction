@@ -6,6 +6,7 @@ from nav_msgs.msg import Odometry
 from math import pow, atan2, sqrt
 from tf.transformations import euler_from_quaternion
 from gazebo_msgs.msg import ModelStates
+from std_msgs.msg import String
 
 
 class Husky:
@@ -22,16 +23,19 @@ class Husky:
         # when a message of type Pose is received.
         self.pose_subscriber = rospy.Subscriber('/husky_velocity_controller/odom', Odometry, self.update_pose)
 
+        self.state_subscriber = rospy.Subscriber('/human_behavior', String, self.state_update)
+
         self.goals_X = [20,0,0]
         self.goals_Y = [0,0,0]
 
-        self.sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.callback)                                                
+        self.sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.callback)
 
         # We used Pose() message for the self.robot_pose because the Odometry msg is bigger than needed, so we saved the values of the variables we're interested in from the Odometry msg into this Pose msg
         self.robot_pose = Pose()
         self.store_robot_pose = Pose()
         self.human_pose = Pose()
         self.vel_msg = Twist()
+        self.state = String()
         self.rate = rospy.Rate(10)
 
     
@@ -47,7 +51,14 @@ class Husky:
         # print("Goals X: ", self.goals_X)
         # print("Goals Y: ", self.goals_Y)
 
-        self.move2goal()
+        # Checking which state is happening
+        if(self.state.data == "passing"):
+            print("PASSING")
+            self.passing_scenario()
+
+        elif(self.state.data == "crossing"):
+            print("CROSSING")
+            self.crossing_scenario()
 
 
     def update_pose(self, data):
@@ -61,6 +72,11 @@ class Husky:
 
         (self.theta_x, self.theta_y, self.robot_pose.theta) = euler_from_quaternion(q)
         # print("Pose X Update: ", self.robot_pose.x)
+    
+    def state_update(self, data):
+        
+        # Updating state
+        self.state.data = data
 
 
     def euclidean_distance(self, goal_pose):
@@ -79,7 +95,7 @@ class Husky:
         """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
         return constant * (self.steering_angle(goal_pose) - self.robot_pose.theta)
 
-    def move2goal(self):
+    def passing_scenario(self):
         """Moves the turtle to the goal."""
 
         goal_pose = Pose()
@@ -140,11 +156,33 @@ class Husky:
             print("Robot pose Y = ", self.robot_pose.y)
             print("---------------------------")
 
+    def crossing_scenario(self):
+        
+        threshold = 3
+        eucl_dist = sqrt(pow((self.human_pose.x - self.robot_pose.x), 2) + pow((self.human_pose.y - self.robot_pose.y), 2))
+
+        print("crossing scenario running")
+
+        if(eucl_dist > threshold): # Robot moving when safe to do so
+
+            # Linear velocity in the x-axis.
+            self.vel_msg.linear.x = 1
+            print("move forward")
+
+        else: # Robot waiting for human to safely pass
+
+            # Linear velocity in the x-axis.
+            self.vel_msg.linear.x = 0
+            print("stop till human passes")
+
+        # Publishing our vel_msg
+        self.velocity_publisher.publish(self.vel_msg)
+
 
 if __name__ == '__main__':
     try:
         Husky()
-        # x.move2goal()
+        # x.passing_scenario()
         rospy.spin()
     except rospy.ROSInterruptException:
         pass

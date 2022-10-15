@@ -13,8 +13,8 @@ def main():
         
             # Publisher 
             cmd_vel = Act_msg()
-            cmd_vel.target_x = 0
-            cmd_vel.target_y = 0
+            cmd_vel.target_x = 3
+            cmd_vel.target_y = 10
             cmd_vel.velocity = 0.5
 
             pub.publish(cmd_vel)
