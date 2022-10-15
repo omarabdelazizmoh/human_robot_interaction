@@ -22,8 +22,8 @@ class Husky:
         # when a message of type Pose is received.
         self.pose_subscriber = rospy.Subscriber('/husky_velocity_controller/odom', Odometry, self.update_pose)
 
-        self.goals_X = [20,0,0,0,0]
-        self.goals_Y = [0,0,0,0,0]
+        self.goals_X = [20,0,0]
+        self.goals_Y = [0,0,0]
 
         self.sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.callback)                                                
 
@@ -41,9 +41,9 @@ class Husky:
         self.human_pose.x = data.pose[2].position.x
         self.human_pose.y = data.pose[2].position.y
         
-        # Setting robot speeds
-        self.goals_X = [self.human_pose.x - 7,      self.human_pose.x - 3,       10]
-        self.goals_Y = [self.human_pose.y,          self.human_pose.y - 3,       0]
+        # Setting robot waypoints to avoid human
+        self.goals_X = [self.human_pose.x - 7,      self.human_pose.x - 3,       self.robot_pose.x + 5]
+        self.goals_Y = [self.human_pose.y,          self.human_pose.y - 3,       self.robot_pose.y]
         # print("Goals X: ", self.goals_X)
         # print("Goals Y: ", self.goals_Y)
 
@@ -122,8 +122,8 @@ class Husky:
                 # Publishing our vel_msg
                 self.velocity_publisher.publish(self.vel_msg)
                 
-                if(i > 2):
-                    print("while loop")
+                # if(i > 2):
+                #     print("while loop")
 
                 # if(i == (len(self.goals_X) - 1)):
                 #     self.vel_msg.linear.x = 1.5

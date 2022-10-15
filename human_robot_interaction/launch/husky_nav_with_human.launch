@@ -6,7 +6,7 @@
   </include>
 
   <include file="$(find husky_gazebo)/launch/spawn_husky.launch"/>
-  <node name="go_to_goal" pkg="human_robot_interaction" type="go_to_goal.py" output="screen"/>
+  <node name="go_to_goal_passing_scenario" pkg="human_robot_interaction" type="passing_scenario.py" output="screen"/>
   <node name="human_move" pkg="human_robot_interaction" type="human_move.py"/>
   
 </launch>
