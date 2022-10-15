@@ -15,7 +15,7 @@ def main():
             cmd_vel = Act_msg()
             cmd_vel.target_x = 3
             cmd_vel.target_y = 10
-            cmd_vel.velocity = 0.5
+            cmd_vel.velocity = 0.25
 
             pub.publish(cmd_vel)
     

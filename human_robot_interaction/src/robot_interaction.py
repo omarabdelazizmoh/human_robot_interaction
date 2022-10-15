@@ -52,11 +52,11 @@ class Husky:
         # print("Goals Y: ", self.goals_Y)
 
         # Checking which state is happening
-        if(self.state.data == "passing"):
-            print("PASSING")
-            self.passing_scenario()
+        # if(self.state.data == "passing"):
+        #     print("PASSING")
+        #     self.passing_scenario()
 
-        elif(self.state.data == "crossing"):
+        if(self.state.data == "crossing"):
             print("CROSSING")
             self.crossing_scenario()
 
@@ -76,7 +76,7 @@ class Husky:
     def state_update(self, data):
         
         # Updating state
-        self.state.data = data
+        self.state = data
 
 
     def euclidean_distance(self, goal_pose):
@@ -161,12 +161,10 @@ class Husky:
         threshold = 3
         eucl_dist = sqrt(pow((self.human_pose.x - self.robot_pose.x), 2) + pow((self.human_pose.y - self.robot_pose.y), 2))
 
-        print("crossing scenario running")
-
         if(eucl_dist > threshold): # Robot moving when safe to do so
 
             # Linear velocity in the x-axis.
-            self.vel_msg.linear.x = 1
+            self.vel_msg.linear.x = 0.5
             print("move forward")
 
         else: # Robot waiting for human to safely pass
