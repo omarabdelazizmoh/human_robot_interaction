@@ -21,7 +21,7 @@ class Husky:
 
         # A subscriber to the topic '/turtle1/pose'. self.update_pose is called
         # when a message of type Pose is received.
-        self.pose_subscriber = rospy.Subscriber('/husky_velocity_controller/odom', Odometry, self.update_pose)
+        # self.pose_subscriber = rospy.Subscriber('/husky_velocity_controller/odom', Odometry, self.update_pose)
 
         self.state_subscriber = rospy.Subscriber('/human_behavior', String, self.state_update)
 
@@ -45,6 +45,9 @@ class Husky:
         self.human_pose.x = data.pose[2].position.x
         self.human_pose.y = data.pose[2].position.y
         
+        self.robot_pose.x = data.pose[3].position.x
+        self.robot_pose.y = data.pose[3].position.y
+
         # Setting robot waypoints to avoid human
         self.goals_X = [self.human_pose.x - 7,      self.human_pose.x - 3,       self.robot_pose.x + 5]
         self.goals_Y = [self.human_pose.y,          self.human_pose.y - 3,       self.robot_pose.y]
@@ -57,27 +60,26 @@ class Husky:
         #     self.passing_scenario()
 
         if(self.state.data == "crossing"):
-            print("CROSSING")
+            # print("CROSSING")
             self.crossing_scenario()
 
 
-    def update_pose(self, data):
-        """Callback function which is called when a new message of type Pose is
-        received by the subscriber."""
+    # def update_pose(self, data):
+    #     """Callback function which is called when a new message of type Pose is
+    #     received by the subscriber."""
         
-        self.robot_pose.x = data.pose.pose.position.x
-        self.robot_pose.y = data.pose.pose.position.y
+    #     self.robot_pose.x = data.pose.pose.position.x
+    #     self.robot_pose.y = data.pose.pose.position.y
 
-        q = [data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w]
+    #     q = [data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w]
 
-        (self.theta_x, self.theta_y, self.robot_pose.theta) = euler_from_quaternion(q)
+    #     (self.theta_x, self.theta_y, self.robot_pose.theta) = euler_from_quaternion(q)
         # print("Pose X Update: ", self.robot_pose.x)
     
     def state_update(self, data):
         
         # Updating state
         self.state = data
-
 
     def euclidean_distance(self, goal_pose):
         """Euclidean distance between current pose and the goal."""
@@ -126,7 +128,8 @@ class Husky:
                 self.orientation_error = self.steering_angle(goal_pose) - self.robot_pose.theta
 
                 # Linear velocity in the x-axis.
-                self.vel_msg.linear.x = self.linear_vel(goal_pose)
+                # self.vel_msg.linear.x = self.linear_vel(goal_pose)
+                self.vel_msg.linear.x = 0.5
                 self.vel_msg.linear.y = 0
                 self.vel_msg.linear.z = 0
 
@@ -158,8 +161,14 @@ class Husky:
 
     def crossing_scenario(self):
         
-        threshold = 3
+        threshold = 5.25
         eucl_dist = sqrt(pow((self.human_pose.x - self.robot_pose.x), 2) + pow((self.human_pose.y - self.robot_pose.y), 2))
+        print("human_pose x = ", self.human_pose.x)
+        print("robot_pose x = ", self.robot_pose.x)
+        print("human_pose y = ", self.human_pose.y)
+        print("robot_pose y = ", self.robot_pose.y)
+        print("eucl dist = ", eucl_dist)
+        print("-------------------------------------")
 
         if(eucl_dist > threshold): # Robot moving when safe to do so
 
