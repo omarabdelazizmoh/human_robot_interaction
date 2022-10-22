@@ -90,7 +90,7 @@
     </spherical_coordinates>
 
 
-    <model name='ground_plane'>
+    <!-- <model name='ground_plane'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
@@ -99,12 +99,12 @@
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
-      </model>
+      </model> -->
 
 
 
     <actor name="actor1">
-  		<pose>5 -4 1.25 0 0 0</pose>
+  		<pose>15 0 1.25 0 0 0</pose>
   		<skin>
     		<filename>moonwalk.dae</filename>
     		<scale>1.0</scale>
@@ -115,7 +115,7 @@
     		<interpolate_x>true</interpolate_x>
   		</animation>
   		<plugin name="actor1_plugin" filename="libactor_sub.so">
-    		<target>5 -4 1.25</target>
+    		<target>15 0 1.25</target>
     		<target_weight>1.15</target_weight>
     		<obstacle_weight>1.8</obstacle_weight>
     		<animation_factor>5.1</animation_factor>

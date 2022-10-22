@@ -25,8 +25,8 @@ class Husky:
 
         self.state_subscriber = rospy.Subscriber('/human_behavior', String, self.state_update)
 
-        self.goals_X = [20,0,0]
-        self.goals_Y = [0,0,0]
+        self.goals_X = [20,0]
+        self.goals_Y = [0,0]
 
         self.sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.callback)
 
@@ -42,22 +42,24 @@ class Husky:
     def callback(self, data):
 
         # Extracting positon info from /gazebo/model_states
-        self.human_pose.x = data.pose[2].position.x
-        self.human_pose.y = data.pose[2].position.y
+        self.human_pose.x = data.pose[1].position.x
+        self.human_pose.y = data.pose[1].position.y
         
-        self.robot_pose.x = data.pose[3].position.x
-        self.robot_pose.y = data.pose[3].position.y
+        self.robot_pose.x = data.pose[2].position.x
+        self.robot_pose.y = data.pose[2].position.y
 
         # Setting robot waypoints to avoid human
-        self.goals_X = [self.human_pose.x - 7,      self.human_pose.x - 3,       self.robot_pose.x + 5]
-        self.goals_Y = [self.human_pose.y,          self.human_pose.y - 3,       self.robot_pose.y]
+        self.goals_X = [self.human_pose.x - 5,      self.human_pose.x - 3]
+        self.goals_Y = [self.human_pose.y,          self.human_pose.y - 3]
+        # self.goals_X = [self.human_pose.x - 5,      self.human_pose.x - 3,       self.robot_pose.x + 5]
+        # self.goals_Y = [self.human_pose.y,          self.human_pose.y - 3,       self.robot_pose.y]
         # print("Goals X: ", self.goals_X)
         # print("Goals Y: ", self.goals_Y)
 
         # Checking which state is happening
-        # if(self.state.data == "passing"):
-        #     print("PASSING")
-        #     self.passing_scenario()
+        if(self.state.data == "passing"):
+            print("PASSING")
+            self.passing_scenario()
 
         if(self.state.data == "crossing"):
             # print("CROSSING")
@@ -98,8 +100,11 @@ class Husky:
         return constant * (self.steering_angle(goal_pose) - self.robot_pose.theta)
 
     def passing_scenario(self):
-        """Moves the turtle to the goal."""
 
+        # Initialize the robot velocity
+        self.vel_msg.linear.x = 0.5
+        self.velocity_publisher.publish(self.vel_msg)
+        
         goal_pose = Pose()
 
         for i in range(0, len(self.goals_X)):
@@ -108,14 +113,16 @@ class Husky:
             goal_pose.x = self.goals_X[i]
             goal_pose.y = self.goals_Y[i]
             print("goal_pose updated.")
+
+            print("i = ", i)
             
             # Please, insert a number slightly greater than 0 (e.g. 0.01).
             distance_tolerance = 0.5
 
             # Storing robot pose so that it could continue on its path after avoiding the human
-            if(i == 0):
-                self.store_robot_pose.x = self.robot_pose.x
-                self.store_robot_pose.y = self.robot_pose.y
+            # if(i == 0):
+            #     self.store_robot_pose.x = self.robot_pose.x
+            #     self.store_robot_pose.y = self.robot_pose.y
 
             while self.euclidean_distance(goal_pose) >= distance_tolerance:
 
@@ -138,17 +145,8 @@ class Husky:
                 self.vel_msg.angular.y = 0
                 self.vel_msg.angular.z = self.angular_vel(goal_pose)
 
-                # Publishing our vel_msg
+                # Publish vel_msg
                 self.velocity_publisher.publish(self.vel_msg)
-                
-                # if(i > 2):
-                #     print("while loop")
-
-                # if(i == (len(self.goals_X) - 1)):
-                #     self.vel_msg.linear.x = 1.5
-                #     self.vel_msg.angular.z = 0
-                #     self.velocity_publisher.publish(self.vel_msg)
-                    # rospy.signal_shutdown("All goals reached.")
 
             print("Reached goal ", i)
             print("Goal pos X = ", self.goals_X[i])
