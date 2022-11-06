@@ -39,6 +39,7 @@ class Human_Behavior:
         self.robot_pose = Pose()
         self.human_pose = Pose()
         self.state = String()
+        self.human_side = String()
         self.human_nearby = Int8()
         self.rate = rospy.Rate(10)
 
@@ -120,6 +121,33 @@ class Human_Behavior:
             # print("Human is far away")
             pass
 
+        
+        
+        # Checking which side human exists with respect to robot: "left" or "right"
+        # if(self.state == "passing"):
+
+        #     if( (self.robot_pose.y - self.human_pose.y) > 0 and round(self.robot_pose.x - self.robot_pose_x_prev, 3) > 0 ):
+        #         print("1. Human is on the right side of the robot.")
+        #         self.human_side = "right"
+
+        #     elif( (self.robot_pose.y - self.human_pose.y) > 0 and round(self.robot_pose.x - self.robot_pose_x_prev, 3) < 0 ):
+        #         print("2. Human is on the left side of the robot.")
+        #         self.human_side = "left"
+
+        #     elif( (self.robot_pose.y - self.human_pose.y) < 0 and round(self.robot_pose.x - self.robot_pose_x_prev, 3) > 0 ):
+        #         print("3. Human is on the left side of the robot.")
+        #         self.human_side = "left"
+
+        #     elif( (self.robot_pose.y - self.human_pose.y) < 0 and round(self.robot_pose.x - self.robot_pose_x_prev, 3) < 0 ):
+        #         print("4. Human is on the right side of the robot.")
+        #         self.human_side = "right"
+
+        #     else:
+        #         print("The human is moving along the same line as the robot")
+            
+        # print("The human is on the ", self.human_side, " side of the robot.")
+        
+        
         # Update values
         self.eucl_dist_prev = eucl_dist_new
         self.human_pose_x_prev = self.human_pose.x
@@ -129,7 +157,7 @@ class Human_Behavior:
 
         # Publish the human behavior
         self.state_publisher.publish(self.state)
-        
+
 
         # Comparing Euclidean distances
         # Passing scenario
