@@ -14,6 +14,7 @@
 <arg name="target_x" value="-4"/>
 <arg name="target_y" value="0"/>
 <node name="human_move" pkg="human_robot_interaction" type="human_move.py" args="$(arg target_x) $(arg target_y)"/>
+<node name="robot_passing_scenario" pkg="human_robot_interaction" type="robot_passing.py" output="screen"/>
 
 </group>
 
@@ -41,6 +42,7 @@
 <arg name="target_x" value="20"/>
 <arg name="target_y" value="0"/>
 <node name="human_move" pkg="human_robot_interaction" type="human_move.py" args="$(arg target_x) $(arg target_y)"/>
+<node name="robot_overtaking_scenario" pkg="human_robot_interaction" type="robot_overtaking.py" output="screen"/>
 
 </group>
 

@@ -35,8 +35,6 @@ class Husky:
         self.store_robot_pose = Pose()
         self.human_pose = Pose()
         self.vel_msg = Twist()
-        # self.state = String()
-        self.state = 1 #0 = Passing Scenario, 1 = Crossing Scenario, 2 = Overtaking Scenario
         self.rate = rospy.Rate(10)
 
     
@@ -49,8 +47,8 @@ class Husky:
         print("Human Pose X: ", self.human_pose.x)
         print("Human Pose Y: ", self.human_pose.y)
         
-        self.robot_pose.x = data.pose[2].position.x
-        self.robot_pose.y = data.pose[2].position.y
+        self.robot_pose.x = data.pose[-1].position.x
+        self.robot_pose.y = data.pose[-1].position.y
 
         print("Robot Pose X: ", self.robot_pose.x)
         print("Robot Pose Y: ", self.robot_pose.y)
@@ -66,66 +64,8 @@ class Husky:
         # print("Goals X: ", self.goals_X)
         # print("Goals Y: ", self.goals_Y)
 
-        # Checking which state is happening
-        # if(self.state.data == "passing"):
-        #     print("PASSING")
-        #     self.passing_scenario()
 
-        # if(self.state.data == "crossing"):
-        #     # print("CROSSING")
-        #     self.crossing_scenario()
-
-        # Selecting the scenario which will run
-        if(self.state == 0):
-            # print("Passing Scenario")
-            self.passing_scenario()
-        
-        elif(self.state == 1):
-            # print("Crossing Scenario")
-            self.crossing_scenario()
-
-        # elif(self.state == 2):
-        #     print("Overtaking Scenario")
-        #     self.overtaking_scenario()
-        
-        else:
-            print("Incorrect entry. Please try again.")
-
-
-    # def update_pose(self, data):
-    #     """Callback function which is called when a new message of type Pose is
-    #     received by the subscriber."""
-        
-    #     self.robot_pose.x = data.pose.pose.position.x
-    #     self.robot_pose.y = data.pose.pose.position.y
-
-    #     q = [data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w]
-
-    #     (self.theta_x, self.theta_y, self.robot_pose.theta) = euler_from_quaternion(q)
-        # print("Pose X Update: ", self.robot_pose.x)
-    
-    # def state_update(self, data):
-        
-    #     # Updating state
-    #     self.state = data
-
-    def euclidean_distance(self, goal_pose):
-        """Euclidean distance between current pose and the goal."""
-        return sqrt(pow((goal_pose.x - self.robot_pose.x), 2) + pow((goal_pose.y - self.robot_pose.y), 2))
-
-    def linear_vel(self, goal_pose, constant=0.3):
-        """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
-        return constant * self.euclidean_distance(goal_pose)
-
-    def steering_angle(self, goal_pose):
-        """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
-        return atan2(goal_pose.y - self.robot_pose.y, goal_pose.x - self.robot_pose.x)
-
-    def angular_vel(self, goal_pose, constant=1.2):
-        """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
-        return constant * (self.steering_angle(goal_pose) - self.robot_pose.theta)
-
-    def passing_scenario(self):
+        # Passing Scenario
 
         # Initialize the robot velocity
         self.vel_msg.linear.x = 0.5
@@ -168,8 +108,8 @@ class Husky:
                     # print("--------------------------------")
 
                     # Linear velocity in the x-axis.
-                    self.vel_msg.linear.x = self.linear_vel(goal_pose)
-                    # self.vel_msg.linear.x = 0.5
+                    # self.vel_msg.linear.x = self.linear_vel(goal_pose)
+                    self.vel_msg.linear.x = 0.5
                     self.vel_msg.linear.y = 0
                     self.vel_msg.linear.z = 0
 
@@ -192,31 +132,90 @@ class Husky:
                 print("---------------------------")
 
 
-    def crossing_scenario(self):
+
+
+    def euclidean_distance(self, goal_pose):
+        """Euclidean distance between current pose and the goal."""
+        return sqrt(pow((goal_pose.x - self.robot_pose.x), 2) + pow((goal_pose.y - self.robot_pose.y), 2))
+
+    def linear_vel(self, goal_pose, constant=0.3):
+        """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
+        return constant * self.euclidean_distance(goal_pose)
+
+    def steering_angle(self, goal_pose):
+        """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
+        return atan2(goal_pose.y - self.robot_pose.y, goal_pose.x - self.robot_pose.x)
+
+    def angular_vel(self, goal_pose, constant=1.2):
+        """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
+        return constant * (self.steering_angle(goal_pose) - self.robot_pose.theta)
+
+    # def passing_scenario(self):
+
+    #     # Initialize the robot velocity
+    #     self.vel_msg.linear.x = 0.5
+    #     self.velocity_publisher.publish(self.vel_msg)
         
-        threshold = 5.25
-        eucl_dist = sqrt(pow((self.human_pose.x - self.robot_pose.x), 2) + pow((self.human_pose.y - self.robot_pose.y), 2))
-        print("human_pose x = ", self.human_pose.x)
-        print("robot_pose x = ", self.robot_pose.x)
-        print("human_pose y = ", self.human_pose.y)
-        print("robot_pose y = ", self.robot_pose.y)
-        print("eucl dist = ", eucl_dist)
-        print("-------------------------------------")
+    #     goal_pose = Pose()
 
-        if(eucl_dist > threshold): # Robot moving when safe to do so
+    #     # If Euclidean distance between robot and human is less than 10
+    #     if( sqrt( pow(self.human_pose.x - self.robot_pose.x, 2) + pow(self.human_pose.y - self.robot_pose.y, 2) ) < 10 ):
 
-            # Linear velocity in the x-axis.
-            self.vel_msg.linear.x = 0.5
-            print("move forward")
+    #         for i in range(0, len(self.goals_X)):
 
-        else: # Robot waiting for human to safely pass
+    #             # Update goal position
+    #             goal_pose.x = self.goals_X[i]
+    #             goal_pose.y = self.goals_Y[i]
+    #             # print("goal_pose updated.")
 
-            # Linear velocity in the x-axis.
-            self.vel_msg.linear.x = 0
-            print("stop till human passes")
+    #             print("Goal Pose X: ", self.goals_X[i])
+    #             print("Goal Pose Y: ", self.goals_Y[i])
 
-        # Publishing our vel_msg
-        self.velocity_publisher.publish(self.vel_msg)
+    #             print("i = ", i)
+                
+    #             # Please, insert a number slightly greater than 0 (e.g. 0.01).
+    #             distance_tolerance = 0.5
+
+    #             # Storing robot pose so that it could continue on its path after avoiding the human
+    #             # if(i == 0):
+    #             #     self.store_robot_pose.x = self.robot_pose.x
+    #             #     self.store_robot_pose.y = self.robot_pose.y
+
+    #             while self.euclidean_distance(goal_pose) >= distance_tolerance:
+
+    #                 # Calculating errors
+    #                 self.dist_error_X = goal_pose.x - self.robot_pose.x
+    #                 self.dist_error_Y = goal_pose.y - self.robot_pose.y
+    #                 self.orientation_error = self.steering_angle(goal_pose) - self.robot_pose.theta
+
+    #                 # print("Dist error X:", self.dist_error_X)
+    #                 # print("Dist error Y:", self.dist_error_Y)
+    #                 # print("--------------------------------")
+
+    #                 # Linear velocity in the x-axis.
+    #                 # self.vel_msg.linear.x = self.linear_vel(goal_pose)
+    #                 self.vel_msg.linear.x = 0.5
+    #                 self.vel_msg.linear.y = 0
+    #                 self.vel_msg.linear.z = 0
+
+    #                 # Angular velocity in the z-axis.
+    #                 self.vel_msg.angular.x = 0
+    #                 self.vel_msg.angular.y = 0
+    #                 self.vel_msg.angular.z = self.angular_vel(goal_pose)
+    #                 # self.vel_msg.angular.z = 0.5
+
+    #                 # Publish vel_msg
+    #                 self.velocity_publisher.publish(self.vel_msg)
+
+    #             print("Reached goal ", i)
+    #             print("Goal pos X = ", self.goals_X[i])
+    #             print("Goal pos X = ", self.goals_Y[i])
+    #             # print("Human pose X = ", self.human_pose.x)
+    #             # print("Human pose Y = ", self.human_pose.y)
+    #             # print("Robot pose X = ", self.robot_pose.x)
+    #             # print("Robot pose Y = ", self.robot_pose.y)
+    #             print("---------------------------")
+
 
 
 if __name__ == '__main__':
