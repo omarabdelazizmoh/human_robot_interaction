@@ -1,0 +1,58 @@
+<launch>
+
+<arg name="passing" default="false"/>
+<arg name="crossing" default="false"/>
+<arg name="overtaking" default="false"/>
+
+<group if="$(arg passing)">
+
+<include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find human_robot_interaction)/worlds/passing.world"/>
+    <!-- more default parameters can be changed here -->
+  </include>
+
+<arg name="target_x" value="-4"/>
+<arg name="target_y" value="0"/>
+<arg name="velocity" value="0.4"/>
+<node name="human_move" pkg="human_robot_interaction" type="human_move.py" args="$(arg target_x) $(arg target_y) $(arg velocity)"/>
+<node name="robot_passing_scenario" pkg="human_robot_interaction" type="robot_passing.py" output="screen"/>
+
+</group>
+
+<group if="$(arg crossing)">
+
+<include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find human_robot_interaction)/worlds/crossing.world"/>
+    <!-- more default parameters can be changed here -->
+  </include>
+
+<arg name="target_x" value="9"/>
+<arg name="target_y" value="10"/>
+<arg name="velocity" value="0.4"/>
+<node name="human_move" pkg="human_robot_interaction" type="human_move.py" args="$(arg target_x) $(arg target_y) $(arg velocity)"/>
+<node name="robot_crossing_scenario" pkg="human_robot_interaction" type="robot_crossing.py" output="screen"/>
+
+</group>
+
+<group if="$(arg overtaking)">
+
+<include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find human_robot_interaction)/worlds/overtaking.world"/>
+    <!-- more default parameters can be changed here -->
+  </include>
+
+<arg name="target_x" value="20"/>
+<arg name="target_y" value="0"/>
+<arg name="velocity" value="0.2"/>
+<node name="human_move" pkg="human_robot_interaction" type="human_move.py" args="$(arg target_x) $(arg target_y) $(arg velocity)"/>
+
+<include file="$(find husky_viz)/launch/view_robot.launch"/>
+<include file="$(find husky_navigation)/launch/move_base_mapless_demo.launch"/>
+
+</group>
+
+<include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+  <arg name="y" value="0.0"/>
+</include>
+
+</launch>
