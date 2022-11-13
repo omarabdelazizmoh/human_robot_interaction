@@ -42,12 +42,12 @@ class Husky:
         
         threshold = 5.25
         eucl_dist = sqrt(pow((self.human_pose.x - self.robot_pose.x), 2) + pow((self.human_pose.y - self.robot_pose.y), 2))
-        print("human_pose x = ", self.human_pose.x)
-        print("robot_pose x = ", self.robot_pose.x)
-        print("human_pose y = ", self.human_pose.y)
-        print("robot_pose y = ", self.robot_pose.y)
-        print("eucl dist = ", eucl_dist)
-        print("-------------------------------------")
+        # print("human_pose x = ", self.human_pose.x)
+        # print("robot_pose x = ", self.robot_pose.x)
+        # print("human_pose y = ", self.human_pose.y)
+        # print("robot_pose y = ", self.robot_pose.y)
+        # print("eucl dist = ", eucl_dist)
+        # print("-------------------------------------")
 
         if(eucl_dist > threshold): # Robot moving when safe to do so
 

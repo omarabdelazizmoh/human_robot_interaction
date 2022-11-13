@@ -14,6 +14,7 @@ def main():
     argv = sys.argv[1:] # Takes in every character after the 'space' in the command line as an argument. It also filters out any other spaces.
     print("Arg Value 0 = ", argv[0])
     print("Arg Value 1 = ", argv[1])
+    print("Arg Value 2 = ", argv[2])
 
     while not rospy.is_shutdown():
         
@@ -21,7 +22,7 @@ def main():
             cmd_vel = Act_msg()
             cmd_vel.target_x = int(argv[0])
             cmd_vel.target_y = int(argv[1])
-            cmd_vel.velocity = 0.3
+            cmd_vel.velocity = float(argv[2])
 
             pub.publish(cmd_vel)
     
