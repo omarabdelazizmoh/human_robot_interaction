@@ -8,14 +8,15 @@
 
 <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find human_robot_interaction)/worlds/passing.world"/>
-    <!-- more default parameters can be changed here -->
-  </include>
+</include>
+
+<include file="$(find husky_viz)/launch/view_robot.launch"/>
+<include file="$(find husky_navigation)/launch/gmapping_demo.launch"/>
 
 <arg name="target_x" value="-4"/>
 <arg name="target_y" value="0"/>
 <arg name="velocity" value="0.4"/>
 <node name="human_move" pkg="human_robot_interaction" type="human_move.py" args="$(arg target_x) $(arg target_y) $(arg velocity)"/>
-<node name="robot_passing_scenario" pkg="human_robot_interaction" type="robot_passing.py" output="screen"/>
 
 </group>
 
@@ -23,14 +24,15 @@
 
 <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find human_robot_interaction)/worlds/crossing.world"/>
-    <!-- more default parameters can be changed here -->
-  </include>
+</include>
+
+<include file="$(find husky_viz)/launch/view_robot.launch"/>
+<include file="$(find husky_navigation)/launch/gmapping_demo.launch"/>
 
 <arg name="target_x" value="9"/>
 <arg name="target_y" value="10"/>
 <arg name="velocity" value="0.4"/>
 <node name="human_move" pkg="human_robot_interaction" type="human_move.py" args="$(arg target_x) $(arg target_y) $(arg velocity)"/>
-<node name="robot_crossing_scenario" pkg="human_robot_interaction" type="robot_crossing.py" output="screen"/>
 
 </group>
 
@@ -38,15 +40,9 @@
 
 <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find human_robot_interaction)/worlds/overtaking.world"/>
-    <!-- more default parameters can be changed here -->
   </include>
 
 <include file="$(find husky_viz)/launch/view_robot.launch"/>
-
-<include file="$(find husky_navigation)/launch/move_base_mapless_demo.launch">
-<remap from="/scan" to="/front/scan"/>
-</include>
-
 <include file="$(find husky_navigation)/launch/gmapping_demo.launch"/>
 
 <arg name="target_x" value="20"/>

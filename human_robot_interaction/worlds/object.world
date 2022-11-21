@@ -1,7 +1,5 @@
 <sdf version='1.6'>
   <world name='default'>
-
-
     <light name='sun' type='directional'>
       <cast_shadows>1</cast_shadows>
       <pose frame=''>0 0 10 0 -0 0</pose>
@@ -15,7 +13,6 @@
       </attenuation>
       <direction>-0.5 0.1 -0.9</direction>
     </light>
-
     <model name='ground_plane'>
       <static>1</static>
       <link name='link'>
@@ -88,43 +85,21 @@
       <elevation>0</elevation>
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
-
-
-    <!-- <model name='ground_plane'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model> -->
-
-<!-- <pose>9 -6 1.25 0 0 0</pose> FOR CROSSING-->
-<!-- <pose>15 0 1.25 0 0 0</pose> FOR PASSING-->
-
-    <actor name="actor1">
-  		<pose>15 0 1.25 0 0 0</pose>
-  		<skin>
-    		<filename>moonwalk.dae</filename>
-    		<scale>1.0</scale>
-  		</skin>
-      <visual name='visual'>
-          <geometry>
-            <cylinder>
-              <radius>0.5</radius>
-              <length>1</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <script>
-              <name>Gazebo/Grey</name>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-            </script>
-          </material>
-        </visual>
-      <collision name='collision'>
+    <model name='unit_cylinder'>
+      <pose frame=''>0.333856 -0.19556 0.5 0 -0 0</pose>
+      <link name='link'>
+        <inertial>
+          <mass>1</mass>
+          <inertia>
+            <ixx>0.145833</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.145833</iyy>
+            <iyz>0</iyz>
+            <izz>0.125</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
           <geometry>
             <cylinder>
               <radius>0.5</radius>
@@ -145,22 +120,60 @@
             </friction>
           </surface>
         </collision>
-  		<animation name="walking">
-    		<filename>walk.dae</filename>
-    		<scale>1.000000</scale>
-    		<interpolate_x>true</interpolate_x>
-  		</animation>
-  		<plugin name="actor1_plugin" filename="libactor_sub.so">
-    		<target>15 0 1.25</target>
-    		<target_weight>1.15</target_weight>
-    		<obstacle_weight>1.8</obstacle_weight>
-    		<animation_factor>5.1</animation_factor>
-    		<ignore_obstacles>
-      			<model>ground_plane</model>
-      		</ignore_obstacles>
-      		
-  		</plugin> 		
-  	</actor>
-
+        <visual name='visual'>
+          <geometry>
+            <cylinder>
+              <radius>0.5</radius>
+              <length>1</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <state world_name='default'>
+      <sim_time>86 462000000</sim_time>
+      <real_time>86 872323805</real_time>
+      <wall_time>1668997130 224420229</wall_time>
+      <iterations>86462</iterations>
+      <model name='ground_plane'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='unit_cylinder'>
+        <pose frame=''>0.333856 -0.19556 0.5 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.333856 -0.19556 0.5 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 -9.8 0 -0 0</acceleration>
+          <wrench>0 0 -9.8 0 -0 0</wrench>
+        </link>
+      </model>
+      <light name='sun'>
+        <pose frame=''>0 0 10 0 -0 0</pose>
+      </light>
+    </state>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>3.1278 -3.83085 2.96486 -0 0.489062 2.22326</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
   </world>
 </sdf>
