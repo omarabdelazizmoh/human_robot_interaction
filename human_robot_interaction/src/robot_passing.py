@@ -72,7 +72,7 @@ class Husky:
         if( eucl_dist <= 8 and self.human_avoided_flag == False ):
 
             if( self.robot_orientation > -0.7 and self.human_path_avoided_flag == False ):
-                self.vel_msg.linear.x = 0.2
+                self.vel_msg.linear.x = 0.7
                 self.vel_msg.angular.z = -0.3
 
                 self.if_value = 1
@@ -82,7 +82,7 @@ class Husky:
                     self.if_value = 2
             
             else:
-                self.vel_msg.linear.x = 0.2
+                self.vel_msg.linear.x = 0.7
                 self.vel_msg.angular.z = 0.3
                 self.if_value = 3
 
@@ -100,7 +100,6 @@ class Husky:
 if __name__ == '__main__':
     try:
         Husky()
-        # x.passing_scenario()
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
