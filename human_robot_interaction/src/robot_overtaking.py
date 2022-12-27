@@ -34,8 +34,6 @@ class Husky:
         self.human_avoided_flag = False
 
 
-
-
     def callback(self, data):
 
         # Extracting positon info from /gazebo/model_states
@@ -69,11 +67,11 @@ class Husky:
         " AV ", round(self.vel_msg.angular.z, 3), "RO ", round(self.robot_orientation, 3), "HPAF ", self.human_path_avoided_flag,
         "HAF ", self.human_avoided_flag, "IFV ", self.if_value)
 
-        if( eucl_dist <= 8 and self.human_avoided_flag == False ):
+        if( eucl_dist <= 10 and self.human_avoided_flag == False ):
 
             if( self.robot_orientation > -0.35 and self.human_path_avoided_flag == False ):
-                self.vel_msg.linear.x = 0.7
-                self.vel_msg.angular.z = -0.3
+                self.vel_msg.linear.x = 1.7
+                self.vel_msg.angular.z = -0.15
 
                 self.if_value = 1
 
@@ -82,8 +80,8 @@ class Husky:
                     self.if_value = 2
             
             else:
-                self.vel_msg.linear.x = 0.7
-                self.vel_msg.angular.z = 0.3
+                self.vel_msg.linear.x = 1.7
+                self.vel_msg.angular.z = 0.15
                 self.if_value = 3
 
                 if( self.robot_orientation >= 0 ):
@@ -91,7 +89,7 @@ class Husky:
                     self.if_value = 4
 
         else:
-            self.vel_msg.linear.x = 0.7
+            self.vel_msg.linear.x = 2
             self.vel_msg.angular.z = 0
             self.if_value = 5
         
@@ -100,7 +98,6 @@ class Husky:
 if __name__ == '__main__':
     try:
         Husky()
-        # x.passing_scenario()
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
