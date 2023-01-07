@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
 from nav_msgs.msg import Odometry
 from math import pow, atan2, sqrt
-# from tf.transformations import euler_from_quaternion  
+# from tf.transformations import euler_from_quaternion
 from gazebo_msgs.msg import ModelStates
 from std_msgs.msg import String
 import math
@@ -50,7 +50,7 @@ class Husky:
     def cmd_vel_pub(self):
 
         # if(self.passing_state == 0):
-            
+
         #     # Robot moves forward
         #     self.vel_msg.linear.x = 0.5
         #     self.vel_msg.linear.y = 0
@@ -59,9 +59,9 @@ class Husky:
         #     self.vel_msg.angular.x = 0
         #     self.vel_msg.angular.y = 0
         #     self.vel_msg.angular.z = 0
-        
+
         # elif(self.passing_state == 1):
-            
+
         #     if(self.goal_k < 2):
 
         #         self.goal_pose.x = self.goals_X[self.goal_k]
@@ -79,7 +79,7 @@ class Husky:
         #         else:
         #             self.goal_k += 1
         #             print("next goal" + str(self.goal_k))
-            
+
         #         self.vel_msg.linear.x = 0.5
         #         self.vel_msg.linear.y = 0
         #         self.vel_msg.linear.z = 0
@@ -89,9 +89,9 @@ class Husky:
         #         self.vel_msg.angular.y = 0
         #         self.vel_msg.angular.z = self.angular_vel(self.goal_pose)
         #         # self.vel_msg.angular.z = 0
-            
+
         #     elif(self.goal_k == 2):
-                
+
         #         # Target reached, stop the robot
         #         self.vel_msg.linear.x = 0
         #         self.vel_msg.linear.y = 0
@@ -126,7 +126,7 @@ class Husky:
 
         # print("Human Pose X: ", self.human_pose.x)
         # print("Human Pose Y: ", self.human_pose.y)
-        
+
         self.robot_pose.x = data.pose[-1].position.x
         self.robot_pose.y = data.pose[-1].position.y
         #self.robot_pose.theta = data.pose[-1].orientation.w*2
@@ -138,10 +138,10 @@ class Husky:
         self.robot_pose.theta = yaw
         # print("Robot Pose X: ", self.robot_pose.x)
         # print("Robot Pose Y: ", self.robot_pose.y)
-   
+
         dist = sqrt( pow(self.human_pose.x - self.robot_pose.x, 2) + pow(self.human_pose.y - self.robot_pose.y, 2) )
         # print(dist)
-        
+
         if ( dist < 10.0 and self.passing_state == 0):
 
             self.passing_state = 1
@@ -213,7 +213,7 @@ class Husky:
         rho = math.sqrt( (deltaxg)**2 + (deltayg)**2 )
         alpha = (-c_theta + math.atan2( (deltay), (deltax)))
         beta = ( math.atan2( (deltay), (deltax)) - d_theta)
-        
+
         if(alpha>math.pi):
             alpha-=math.pi*2
         if(alpha<-math.pi):
@@ -233,9 +233,9 @@ class Husky:
 
         # Updating current local velocity configurations
         # if (alpha <= math.pi/2 and alpha >= (-(math.pi/2))):
-			
+
         # # Forward motion control law
-        
+
         #     if (alpha > math.pi):
         #         alpha = math.pi
         #     if (alpha < -math.pi):
@@ -254,7 +254,7 @@ class Husky:
         #     # Constraining the wheel speeds to less than 16 rad/sec
         #     if (c_v > 24):
         #         c_v = 24
-            
+
         #     if (c_w > 2):
         #         c_w = 2
 
@@ -313,7 +313,7 @@ class Husky:
         # # Calculating robot wheel speeds -- phi_l and phi_r are the robot's wheel speeds
         # r = 16.5 			# robot wheel radius in cm
         # L = 60			# robot chassis radius in cm
-		
+
         # robot_param_mat = np.array([ [r/2, r/2], [r/(2*L), -r/(2*L)] ])
         # inv_robot_param_mat = np.linalg.inv(robot_param_mat)
         # [phi_r, phi_l] = np.matmul( inv_robot_param_mat, [ [c_v], [c_w]] )		# unit rad/sec
@@ -322,7 +322,7 @@ class Husky:
         if abs(c_posX - d_posX) < 1.8 and abs(c_posY - d_posY) < 1.8 and abs(c_theta - d_theta) < 0.4:
 
             self.i = self.i + 1
-            
+
             if(self.i < 2):
                 self.p_controller(self.i)
 
@@ -339,7 +339,7 @@ class Husky:
 
         #else:
             # print("one goal point reached, continute to next goal point")
-		
+
         # return False
 
 

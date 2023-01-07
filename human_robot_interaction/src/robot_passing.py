@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
@@ -44,17 +44,17 @@ class Husky:
 
         # print("Human Pose X: ", self.human_pose.x)
         # print("Human Pose Y: ", self.human_pose.y)
-        
+
         self.robot_pose.x = data.pose[-1].position.x
         self.robot_pose.y = data.pose[-1].position.y
 
         # print("Robot Pose X: ", self.robot_pose.x)
         # print("Robot Pose Y: ", self.robot_pose.y)
 
-        self.robot_orientation = data.pose[-1].orientation.z       
+        self.robot_orientation = data.pose[-1].orientation.z
 
         self.passing_scenario()
-        
+
 
     def euclidean_distance(self):
         """Euclidean distance between current pose and the goal."""
@@ -64,7 +64,7 @@ class Husky:
 
         eucl_dist = self.euclidean_distance()
         dist_x = abs(self.human_pose.x - self.robot_pose.x)
-        
+
         print("ED ", round(eucl_dist, 3), " Dx ", round(dist_x, 3)," LV ", round(self.vel_msg.linear.x, 3),
         " AV ", round(self.vel_msg.angular.z, 3), "RO ", round(self.robot_orientation, 3), "HPAF ", self.human_path_avoided_flag,
         "HAF ", self.human_avoided_flag, "IFV ", self.if_value)
@@ -80,7 +80,7 @@ class Husky:
                 if( -0.65 > self.robot_orientation >= -0.7 ):
                     self.human_path_avoided_flag = True
                     self.if_value = 2
-            
+
             else:
                 self.vel_msg.linear.x = 0.7
                 self.vel_msg.angular.z = 0.3
@@ -94,7 +94,7 @@ class Husky:
             self.vel_msg.linear.x = 0.7
             self.vel_msg.angular.z = 0
             self.if_value = 5
-        
+
         self.velocity_publisher.publish(self.vel_msg)
 
 if __name__ == '__main__':

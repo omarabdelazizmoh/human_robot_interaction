@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 from turtlesim.msg import Pose
 from nav_msgs.msg import Odometry
@@ -22,7 +22,7 @@ class Human_Behavior:
         # when a message of type Pose is received.
         # self.pose_subscriber = rospy.Subscriber('/husky_velocity_controller/odom', Odometry, self.update_pose)
 
-        self.sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.callback)                                                
+        self.sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.callback)
 
         # Initializing
         self.slope_prev = 0
@@ -34,7 +34,7 @@ class Human_Behavior:
 
         self.robot_pose_x_prev = 0
         self.robot_pose_y_prev = 0
-        
+
         # We used Pose() message for the self.robot_pose because the Odometry msg is bigger than needed, so we saved the values of the variables we're interested in from the Odometry msg into this Pose msg
         self.robot_pose = Pose()
         self.human_pose = Pose()
@@ -43,13 +43,13 @@ class Human_Behavior:
         self.human_nearby = Int8()
         self.rate = rospy.Rate(10)
 
-    
+
     def callback(self, data):
 
         # Extracting positon info from /gazebo/model_states
         self.human_pose.x = data.pose[1].position.x
         self.human_pose.y = data.pose[1].position.y
-        
+
         self.robot_pose.x = data.pose[2].position.x
         self.robot_pose.y = data.pose[2].position.y
 
@@ -67,7 +67,7 @@ class Human_Behavior:
          # Testing whether human is near the robot
         if( eucl_dist_new <= dist_threshold ): # Human is near the robot
             self.human_nearby = 1
-        
+
         else:   #Human is far away from robot
             self.human_nearby = 0
 
@@ -121,8 +121,8 @@ class Human_Behavior:
             # print("Human is far away")
             pass
 
-        
-        
+
+
         # Checking which side human exists with respect to robot: "left" or "right"
         # if(self.state == "passing"):
 
@@ -144,10 +144,10 @@ class Human_Behavior:
 
         #     else:
         #         print("The human is moving along the same line as the robot")
-            
+
         # print("The human is on the ", self.human_side, " side of the robot.")
-        
-        
+
+
         # Update values
         self.eucl_dist_prev = eucl_dist_new
         self.human_pose_x_prev = self.human_pose.x
@@ -166,7 +166,7 @@ class Human_Behavior:
         #     self.state = "passing"
         #     # self.slope_prev = slope_new
         #     self.eucl_dist_prev = eucl_dist_new
-        
+
         # # Crossing scenario
         # elif( (eucl_dist_new - self.eucl_dist_prev) > 0 ):
         #     # print("crossing")
@@ -178,13 +178,13 @@ class Human_Behavior:
         #     # print("error")
         #     self.state = "error"
 
-        
+
 
 
     # def update_pose(self, data):
     #     """Callback function which is called when a new message of type Pose is
     #     received by the subscriber."""
-        
+
     #     self.robot_pose.x = data.pose.pose.position.x
     #     self.robot_pose.y = data.pose.pose.position.y
 

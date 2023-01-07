@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
@@ -28,18 +28,18 @@ class Husky:
         self.vel_msg = Twist()
         self.rate = rospy.Rate(10)
 
-    
+
     def callback(self, data):
 
         # Extracting positon info from /gazebo/model_states
         self.human_pose.x = data.pose[1].position.x
         self.human_pose.y = data.pose[1].position.y
-        
+
         self.robot_pose.x = data.pose[-1].position.x
         self.robot_pose.y = data.pose[-1].position.y
 
         # Crossing Scenario
-        
+
         threshold = 5.25
         eucl_dist = sqrt(pow((self.human_pose.x - self.robot_pose.x), 2) + pow((self.human_pose.y - self.robot_pose.y), 2))
         # print("human_pose x = ", self.human_pose.x)
@@ -81,7 +81,7 @@ class Husky:
         return constant * (self.steering_angle(goal_pose) - self.robot_pose.theta)
 
     # def crossing_scenario(self):
-        
+
     #     threshold = 5.25
     #     eucl_dist = sqrt(pow((self.human_pose.x - self.robot_pose.x), 2) + pow((self.human_pose.y - self.robot_pose.y), 2))
     #     print("human_pose x = ", self.human_pose.x)
