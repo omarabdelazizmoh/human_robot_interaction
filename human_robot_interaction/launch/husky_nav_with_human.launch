@@ -1,12 +1,12 @@
 <launch>
 
  <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find human_robot_interaction)/worlds/worldsim.world"/>
+    <arg name="world_name" value="$(find human_robot_interaction)/worlds/crossing.world"/>
     <!-- more default parameters can be changed here -->
   </include>
 
   <include file="$(find husky_gazebo)/launch/spawn_husky.launch"/>
   <!-- <node name="go_to_goal_passing_scenario" pkg="human_robot_interaction" type="robot_interaction.py" output="screen"/> -->
   <node name="human_move" pkg="human_robot_interaction" type="human_move.py"/>
-  
+
 </launch>
