@@ -1,14 +1,18 @@
 <launch>
 
-<arg name="passing" default="true"/>
+<arg name="passing" default="false"/>
 <arg name="crossing" default="false"/>
 <arg name="overtaking" default="false"/>
 <arg name="test" default="false"/>
+<arg name="rviz" default="true"/>
 
 <group if="$(arg test)">
 
 <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find human_robot_interaction)/worlds/test.world"/>
+    <!-- Adding Node -->
+    <!-- <node name="actor_to_map" pkg="human_robot_interaction" type="actor_to_occupancyGrid.py" output="screen"/> -->
+
     <!-- more default parameters can be changed here -->
   </include>
 
@@ -63,6 +67,10 @@
 <node name="human_move" pkg="human_robot_interaction" type="human_move.py" args="$(arg target_x) $(arg target_y) $(arg velocity)"/>
 <node name="robot_overtaking_scenario" pkg="human_robot_interaction" type="robot_overtaking.py" output="screen"/>
 
+</group>
+
+<group if="$(arg rviz)">
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find human_robot_interaction)/config/custom_occupancy_grid.rviz"/>
 </group>
 
 <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
