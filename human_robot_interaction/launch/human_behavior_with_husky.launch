@@ -5,6 +5,7 @@
 <arg name="overtaking" default="false"/>
 <arg name="test" default="false"/>
 <arg name="rviz" default="true"/>
+<arg name="spawn_husky" default="false"/>
 
 <group if="$(arg test)">
 
@@ -73,8 +74,12 @@
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find human_robot_interaction)/config/custom_occupancy_grid.rviz"/>
 </group>
 
+
+<group if="$(arg spawn_husky)">
+
 <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
   <arg name="y" value="0.0"/>
 </include>
+</group>
 
 </launch>

@@ -12,6 +12,7 @@
     ```
     rosrun human_robot_interaction actor_to_occupancyGrid.py
     ```
+    - Adding dynamic objects motion
 
 
 ## Working Features

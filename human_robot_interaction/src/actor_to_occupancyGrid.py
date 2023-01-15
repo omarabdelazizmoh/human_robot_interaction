@@ -49,7 +49,7 @@ class actor_occupancy_grid():
 
         # Publish the message
         self.map_publisher.publish(self.grid)
-        # print("H_X | ", self.human_pose.x , "//  H_Y | " , self.human_pose.y)
+        print("H_X | ", self.human_pose.x , "//  H_Y | " , self.human_pose.y)
 
 
 if __name__ == '__main__':
