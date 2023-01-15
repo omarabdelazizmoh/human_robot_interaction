@@ -8,6 +8,8 @@ project(human_robot_interaction)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  gazebo_ros
+  roscpp  
   rospy
   std_msgs
   message_generation
@@ -15,7 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
+find_package(gazebo REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -112,18 +114,23 @@ catkin_package(
 ###########
 ## Build ##
 ###########
+link_directories(${GAZEBO_LIBRARY_DIRS})
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
 # include
+  ${Boost_INCLUDE_DIR}
   ${catkin_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/human_robot_interaction.cpp
 # )
+add_library(plannar_mover_plugin plugins/object_motion.cpp)
+target_link_libraries(plannar_mover_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -149,6 +156,7 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+target_link_libraries(plannar_mover_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 #############
 ## Install ##
