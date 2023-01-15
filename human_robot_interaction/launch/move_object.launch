@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+    <arg name="debug" default="false"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="verbose" value="true" />
+    <arg name="pause" default="false"/>  <!-- Start Gazebo with a blank world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find human_robot_interaction)/worlds/example_world.world"/>
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg pause)"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="headless" value="$(arg headless)"/>
+    </include>
+    <node name="move_object_telep" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py"  output="screen">
+        <remap from="cmd_vel" to="object_cmd_vel"/>
+    </node>
+</launch>
