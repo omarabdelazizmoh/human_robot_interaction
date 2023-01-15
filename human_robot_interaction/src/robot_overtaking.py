@@ -70,8 +70,8 @@ class Husky:
         if( eucl_dist <= 10 and self.human_avoided_flag == False ):
 
             if( self.robot_orientation > -0.35 and self.human_path_avoided_flag == False ):
-                self.vel_msg.linear.x = 1.7
-                self.vel_msg.angular.z = -0.15
+                self.vel_msg.linear.x = 1.5
+                self.vel_msg.angular.z = -0.25
 
                 self.if_value = 1
 
@@ -80,8 +80,8 @@ class Husky:
                     self.if_value = 2
 
             else:
-                self.vel_msg.linear.x = 1.7
-                self.vel_msg.angular.z = 0.15
+                self.vel_msg.linear.x = 1.5
+                self.vel_msg.angular.z = 0.25
                 self.if_value = 3
 
                 if( self.robot_orientation >= 0 ):

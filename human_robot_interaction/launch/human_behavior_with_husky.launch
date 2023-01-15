@@ -3,9 +3,9 @@
 <arg name="passing" default="false"/>
 <arg name="crossing" default="false"/>
 <arg name="overtaking" default="false"/>
-<arg name="test" default="true"/>
-<arg name="rviz" default="true"/>
-<arg name="spawn_husky" default="false"/>
+<arg name="test" default="false"/>
+<arg name="rviz" default="false"/>
+<arg name="spawn_husky" default="true"/>
 
 <group if="$(arg test)">
 
