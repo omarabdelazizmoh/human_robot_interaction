@@ -13,7 +13,8 @@
     rosrun human_robot_interaction actor_to_occupancyGrid.py
     ```
     - Adding dynamic objects motion
-
+    
+    This node subscribes to /gazebo/model_states to obtain human position information. This node publishes the current human position to the OccupancyGrid.
 
 ## Working Features
 - To bring human and husky in simulation

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 from gazebo_msgs.msg import ModelStates
 from human_robot_interaction.msg import Act_msg
@@ -72,7 +72,8 @@ def main():
     settings = saveTerminalSettings()
     rospy.init_node('location_monitor')
     rospy.Subscriber("/gazebo/model_states", ModelStates, callback_fn)
-    pub = rospy.Publisher('actor1/vel_cmd', Act_msg, queue_size=10)
+    # pub = rospy.Publisher('actor1/vel_cmd', Act_msg, queue_size=10)
+    pub = rospy.Publisher('human_94763/vel_cmd', Act_msg, queue_size=10)
 
     rate = rospy.Rate(10) 
     while not rospy.is_shutdown():

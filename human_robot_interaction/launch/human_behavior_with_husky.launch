@@ -3,7 +3,7 @@
 <arg name="passing" default="false"/>
 <arg name="crossing" default="false"/>
 <arg name="overtaking" default="false"/>
-<arg name="test" default="false"/>
+<arg name="test" default="true"/>
 <arg name="rviz" default="true"/>
 <arg name="spawn_husky" default="false"/>
 
@@ -32,11 +32,11 @@
     <!-- more default parameters can be changed here -->
   </include>
 
-<arg name="target_x" value="15"/>
+<arg name="target_x" value="-4"/>
 <arg name="target_y" value="0"/>
 <arg name="velocity" value="1.0"/>
-<!-- <node name="human_move" pkg="human_robot_interaction" type="human_move.py" args="$(arg target_x) $(arg target_y) $(arg velocity)"/> -->
-<!-- <node name="robot_passing_scenario" pkg="human_robot_interaction" type="robot_passing_prof.py" output="screen"/> -->
+<node name="human_move" pkg="human_robot_interaction" type="human_move.py" args="$(arg target_x) $(arg target_y) $(arg velocity)"/>
+<node name="robot_passing_scenario" pkg="human_robot_interaction" type="robot_passing_prof.py" output="screen"/>
 
 </group>
 
