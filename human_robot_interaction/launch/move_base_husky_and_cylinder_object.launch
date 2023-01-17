@@ -1,0 +1,44 @@
+<launch>
+
+<arg name="passing" default="false"/>
+<arg name="crossing" default="false"/>
+<arg name="overtaking" default="false"/>
+
+<group if="$(arg passing)">
+
+<include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find human_robot_interaction)/worlds/passing_without_human.world"/>
+</include>
+
+<include file="$(find husky_viz)/launch/view_robot.launch"/>
+<include file="$(find husky_navigation)/launch/gmapping_demo.launch"/>
+
+</group>
+
+<group if="$(arg crossing)">
+
+<include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find human_robot_interaction)/worlds/crossing_without_human.world"/>
+</include>
+
+<include file="$(find husky_viz)/launch/view_robot.launch"/>
+<include file="$(find husky_navigation)/launch/gmapping_demo.launch"/>
+
+</group>
+
+<group if="$(arg overtaking)">
+
+<include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find human_robot_interaction)/worlds/overtaking_without_human.world"/>
+  </include>
+
+<include file="$(find husky_viz)/launch/view_robot.launch"/>
+<include file="$(find husky_navigation)/launch/gmapping_demo.launch"/>
+
+</group>
+
+<include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+  <arg name="y" value="0.0"/>
+</include>
+
+</launch>

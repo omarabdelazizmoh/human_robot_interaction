@@ -30,6 +30,12 @@ namespace gazebo
       
       // Create a topic name
       std::string plannar_pos_topicName = "/object_cmd_vel";
+      // this->sdf = _sdf;
+      
+      if(_sdf->HasElement("topic_name"))
+      {
+        plannar_pos_topicName = _sdf->Get<std::string>("topic_name");
+      }
 
       // Initialize ros, if it has not already bee initialized.
       if (!ros::isInitialized())
@@ -101,6 +107,7 @@ namespace gazebo
     // Pointer to the model
     private: physics::ModelPtr model;
 
+    private: sdf::ElementPtr sdf;
     // Pointer to the update event connection
     private: event::ConnectionPtr updateConnection;
     
