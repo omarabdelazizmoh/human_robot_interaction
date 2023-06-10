@@ -15,7 +15,7 @@
 
 <arg name="target_x" value="-4"/>
 <arg name="target_y" value="0"/>
-<arg name="velocity" value="0.4"/>
+<arg name="velocity" value="0.8"/>
 <node name="human_move" pkg="human_robot_interaction" type="human_move.py" args="$(arg target_x) $(arg target_y) $(arg velocity)"/>
 
 </group>

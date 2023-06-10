@@ -1,5 +1,8 @@
 # Repository for Human Robot Interaction based Project
 
+- NOTE: Robot's approaching speeds within human's comfort zones should fall in the range of 0.254 m/s and 0.381 m/s.
+- Average human speed is 1 m/s.
+
 ## Current Development
 - **actor_to_occupancyGrid.py** : Add Dynamic human motion as occupied cells in static free map-> code is written debugging is needed
 ### Test it
