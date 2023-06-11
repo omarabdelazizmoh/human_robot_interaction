@@ -2,6 +2,9 @@
 
 - NOTE: Robot's approaching speeds within human's comfort zones should fall in the range of 0.254 m/s and 0.381 m/s.
 - Average human speed is 1 m/s.
+- Return the minimum distance between the robot and human throughout the simulation and print it on the terminal.
+- Try maintaining a minimum distance of 1.8 meters between the robot and the human.
+- Big Picture -- Run the simulation with a range of different linear velocities for the robot (while keeping angular velocity constant), and measure the minimum distance between the robot and human in each of the simulations for comparison in my research.
 
 ## Current Development
 - **actor_to_occupancyGrid.py** : Add Dynamic human motion as occupied cells in static free map-> code is written debugging is needed
