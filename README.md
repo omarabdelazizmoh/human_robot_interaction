@@ -7,7 +7,7 @@
 - Big Picture -- Run the simulation with a range of different linear velocities for the robot (while keeping angular velocity constant), and measure the minimum distance between the robot and human in each of the simulations for comparison in my research.
 
 ## Current Development
-- **actor_to_occupancyGrid.py** : Add Dynamic human motion as occupied cells in static free map-> code is written debugging is needed
+- **robot_passing_prof.py** : Robot and actor to occupancy grid -> fix origin
 ### Test it
 -   Mapping Occupancy Grid from Human Location
     - Node is currently incomplete and publishes static Map
@@ -19,7 +19,7 @@
     rosrun human_robot_interaction actor_to_occupancyGrid.py
     ```
     - Adding dynamic objects motion
-    
+
     This node subscribes to /gazebo/model_states to obtain human position information. This node publishes the current human position to the OccupancyGrid.
 
 ## Working Features

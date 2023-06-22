@@ -4,98 +4,123 @@ from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
 from nav_msgs.msg import Odometry
 from math import pow, atan2, sqrt
-from tf.transformations import euler_from_quaternion
+# from tf.transformations import euler_from_quaternion
 from gazebo_msgs.msg import ModelStates
-from std_msgs.msg import String
-
+from nav_msgs.msg import OccupancyGrid
+import math
+import numpy as np
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 class Husky:
-
     def __init__(self):
-        # Creates a node with name 'husky_controller' and make sure it is a
-        # unique node (using anonymous=True).
-        rospy.init_node('husky_controller', anonymous=True)
+        rospy.init_node('husky_controller_gridding', anonymous=True)
 
-        # Publisher which will publish to the topic '/husky_velocity_controller/cmd_vel'.
-        self.velocity_publisher = rospy.Publisher('/husky_velocity_controller/cmd_vel', Twist, queue_size=10)
-
-        self.sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.callback)
-
-        # We used Pose() message for the self.robot_pose because the Odometry msg is bigger than needed, so we saved the values of the variables we're interested in from the Odometry msg into this Pose msg
+        self.velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.robot_pose = Pose()
         self.human_pose = Pose()
-        self.robot_orientation = 0
         self.vel_msg = Twist()
-        self.rate = rospy.Rate(10)
-        self.if_value = 0
-
-        # Initializing flags
-        self.human_path_avoided_flag = False
-        self.human_avoided_flag = False
+        self.goals_X, self.goals_Y = [], []
+        self.passing_state, self.i = 0, 0
+        self.min_distance_human_robot = float('inf')
 
 
+        self.sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.callback)
+        self.drive()
 
+    def drive(self):
+        rate = rospy.Rate(10)
+        while not rospy.is_shutdown():
+            self.go_straight() if self.passing_state == 0 else self.p_controller()
+            self.cmd_vel_pub()
+            rate.sleep()
+
+
+
+    def cmd_vel_pub(self):
+        self.velocity_publisher.publish(self.vel_msg)
+
+    def go_straight(self):
+        self.vel_msg.linear.x = 1.0
+        self.vel_msg.angular.z = 0
 
     def callback(self, data):
+        if len(data.pose) < 3:
+            return
 
-        # Extracting positon info from /gazebo/model_states
-        self.human_pose.x = data.pose[1].position.x
-        self.human_pose.y = data.pose[1].position.y
+        self.update_human_pose(data.pose[1].position)
+        self.update_robot_pose(data.pose[-1])
 
-        # print("Human Pose X: ", self.human_pose.x)
-        # print("Human Pose Y: ", self.human_pose.y)
-
-        self.robot_pose.x = data.pose[-1].position.x
-        self.robot_pose.y = data.pose[-1].position.y
-
-        # print("Robot Pose X: ", self.robot_pose.x)
-        # print("Robot Pose Y: ", self.robot_pose.y)
-
-        self.robot_orientation = data.pose[-1].orientation.z
-
-        self.passing_scenario()
+        self.distance_from_human = sqrt(pow(self.human_pose.x - self.robot_pose.x, 2) + pow(self.human_pose.y - self.robot_pose.y, 2))
+        self.min_distance_human_robot = min(self.min_distance_human_robot, self.distance_from_human)
 
 
-    def euclidean_distance(self):
-        """Euclidean distance between current pose and the goal."""
-        return sqrt(pow((self.human_pose.x - self.robot_pose.x), 2) + pow((self.human_pose.y - self.robot_pose.y), 2))
+        if self.distance_from_human < 10.0 and self.passing_state == 0:
+            self.update_passing_state()
 
-    def passing_scenario(self):
+    def update_human_pose(self, position):
+        self.human_pose.x, self.human_pose.y = position.x, position.y
 
-        eucl_dist = self.euclidean_distance()
-        dist_x = abs(self.human_pose.x - self.robot_pose.x)
+    def update_robot_pose(self, pose):
+        self.robot_pose.x, self.robot_pose.y = pose.position.x, pose.position.y
+        _, _, self.robot_pose.theta = euler_from_quaternion([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
 
-        print("ED ", round(eucl_dist, 3), " Dx ", round(dist_x, 3)," LV ", round(self.vel_msg.linear.x, 3),
-        " AV ", round(self.vel_msg.angular.z, 3), "RO ", round(self.robot_orientation, 3), "HPAF ", self.human_path_avoided_flag,
-        "HAF ", self.human_avoided_flag, "IFV ", self.if_value)
 
-        if( eucl_dist <= 8 and self.human_avoided_flag == False ):
+    def update_passing_state(self):
+        self.passing_state = 1
+        self.goals_X.append(self.human_pose.x-3)
+        self.goals_X.append(self.human_pose.x-3+25)
+        self.goals_Y.append(self.human_pose.y-3)
+        self.goals_Y.append(self.human_pose.y-3)
+        print(f"Update the goal position to: {self.goals_X[0]} {self.goals_Y[0]}")
 
-            if( self.robot_orientation > -0.7 and self.human_path_avoided_flag == False ):
-                self.vel_msg.linear.x = 0.7
-                self.vel_msg.angular.z = -0.3
 
-                self.if_value = 1
+    def p_controller(self):
+            ka = 2.5
+            kb = -1.1
+            kp = 1
+            d_posX, d_posY = self.goals_X[self.i], self.goals_Y[self.i]
+            d_theta = 0
+            c_posX, c_posY, c_theta = self.robot_pose.x, self.robot_pose.y, self.robot_pose.theta
+            deltax, deltay, deltaz = d_posX - c_posX, d_posY - c_posY, 1
 
-                if( -0.65 > self.robot_orientation >= -0.7 ):
-                    self.human_path_avoided_flag = True
-                    self.if_value = 2
+            rotz = np.array([ [math.cos(-d_theta), -math.sin(-d_theta), 0], [math.sin(-d_theta), math.cos(-d_theta), 0], [0, 0, 1] ])
+            deltas = [[deltax], [deltay], [deltaz]]
+            deltaxg, deltayg, deltazg = np.matmul(rotz, deltas).flatten()
 
+            rho = np.sqrt( deltaxg**2 + deltayg**2 )
+            alpha = -c_theta + np.arctan2(deltay, deltax)
+            beta = np.arctan2(deltay, deltax) - d_theta
+
+            # Ensure alpha and beta are within the range [-pi, pi]
+            alpha = (alpha + np.pi) % (2 * np.pi) - np.pi
+            beta = (beta + np.pi) % (2 * np.pi) - np.pi
+
+            c_v, c_w = kp * rho, ka * alpha + kb * beta
+
+            # Limit the velocities to a maximum value
+            if self.distance_from_human < 3:
+                c_v = np.clip(c_v, 0.254, 0.381)
             else:
-                self.vel_msg.linear.x = 0.7
-                self.vel_msg.angular.z = 0.3
-                self.if_value = 3
+                c_v = min(c_v, 1.5)
 
-                if( self.robot_orientation >= 0 ):
-                    self.human_avoided_flag = True
-                    self.if_value = 4
+            c_w = min(c_w, 1.0)
 
-        else:
-            self.vel_msg.linear.x = 0.7
-            self.vel_msg.angular.z = 0
-            self.if_value = 5
+            self.vel_msg.linear.x = c_v
+            self.vel_msg.angular.z = c_w
 
-        self.velocity_publisher.publish(self.vel_msg)
+            if abs(c_posX - d_posX) < 1.8 and abs(c_posY - d_posY) < 1.8 and abs(c_theta - d_theta) < 0.4:
+                self.i += 1
+                print("Goal Reached")
+                if self.i < len(self.goals_X):
+                    self.p_controller()
+                    print("Minimum distance from human:", self.min_distance_human_robot)
+                    self.vel_msg.linear.x = 0
+                    self.vel_msg.angular.z = 0
+
+            return self.i
+
+
+
 
 if __name__ == '__main__':
     try:

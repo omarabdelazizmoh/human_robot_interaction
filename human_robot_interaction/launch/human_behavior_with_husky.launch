@@ -36,7 +36,7 @@
 <arg name="target_y" value="0"/>
 <arg name="velocity" value="1.0"/>
 <node name="human_move" pkg="human_robot_interaction" type="human_move.py" args="$(arg target_x) $(arg target_y) $(arg velocity)"/>
-<node name="robot_passing_scenario" pkg="human_robot_interaction" type="robot_passing_prof.py" output="screen"/>
+<node name="robot_passing_scenario" pkg="human_robot_interaction" type="robot_passing.py" output="screen"/>
 
 </group>
 
@@ -70,9 +70,9 @@
 
 </group>
 
-<group if="$(arg rviz)">
+<!-- <group if="$(arg rviz)">
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find human_robot_interaction)/config/custom_occupancy_grid.rviz"/>
-</group>
+</group> -->
 
 
 <group if="$(arg spawn_husky)">

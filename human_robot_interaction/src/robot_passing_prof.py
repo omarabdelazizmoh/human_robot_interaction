@@ -6,7 +6,7 @@ from nav_msgs.msg import Odometry
 from math import pow, atan2, sqrt
 # from tf.transformations import euler_from_quaternion
 from gazebo_msgs.msg import ModelStates
-from std_msgs.msg import String
+from nav_msgs.msg import OccupancyGrid
 import math
 import numpy as np
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
@@ -16,7 +16,7 @@ class Husky:
     def __init__(self):
         # Creates a node with name 'husky_controller' and make sure it is a
         # unique node (using anonymous=True).
-        rospy.init_node('husky_controller', anonymous=True)
+        rospy.init_node('husky_controller_gridding', anonymous=True)
 
         # Publisher which will publish to the topic '/husky_velocity_controller/cmd_vel'.
         self.velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
@@ -26,7 +26,8 @@ class Husky:
 
         self.sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.callback)
 
-        # We used Pose() message for the self.robot_pose because the Odometry msg is bigger than needed, so we saved the values of the variables we're interested in from the Odometry msg into this Pose msg
+        # We used Pose() message for the self.robot_pose because the Odometry msg is bigger than needed,
+        # so we saved the values of the variables we're interested in from the Odometry msg into this Pose msg
         self.robot_pose = Pose()
         self.human_pose = Pose()
 
@@ -39,6 +40,21 @@ class Husky:
         self.i = 0
 
 
+        self.grid = OccupancyGrid()
+        self.grid.info.resolution = 1.0  # Each cell is 1m x 1m
+        self.grid.info.width = 10  # The grid is 10 cells wide
+        self.grid.info.height = 10  # The grid is 10 cells high
+        self.grid.info.origin.position.x = -5  # The x position of the left edge of the grid
+        self.grid.info.origin.position.y = -5  # The y position of the bottom edge of the grid
+        self.grid.data = [0]*self.grid.info.width*self.grid.info.height  # All cells are free
+
+
+        # Create the subscriber and publisher
+        self.sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.update_grid)
+        self.pub = rospy.Publisher('dynamic_map', OccupancyGrid, queue_size=10)
+
+
+
         while not rospy.is_shutdown():
             if(self.passing_state==0):
                 self.go_straight()
@@ -48,58 +64,6 @@ class Husky:
             self.cmd_vel_pub()
 
     def cmd_vel_pub(self):
-
-        # if(self.passing_state == 0):
-
-        #     # Robot moves forward
-        #     self.vel_msg.linear.x = 0.5
-        #     self.vel_msg.linear.y = 0
-        #     self.vel_msg.linear.z = 0
-
-        #     self.vel_msg.angular.x = 0
-        #     self.vel_msg.angular.y = 0
-        #     self.vel_msg.angular.z = 0
-
-        # elif(self.passing_state == 1):
-
-        #     if(self.goal_k < 2):
-
-        #         self.goal_pose.x = self.goals_X[self.goal_k]
-        #         self.goal_pose.y = self.goals_Y[self.goal_k]
-        #         # print("goal pose: %f,%f"%(self.goal_pose.x,self.goal_pose.y))
-        #         distance_tolerance = 0.5
-
-        #         if(self.euclidean_distance(self.goal_pose) >= distance_tolerance):
-
-        #                 # Calculating errors
-        #                 self.dist_error_X = self.goal_pose.x - self.robot_pose.x
-        #                 self.dist_error_Y = self.goal_pose.y - self.robot_pose.y
-        #                 self.orientation_error = self.steering_angle(self.goal_pose) - self.robot_pose.theta
-
-        #         else:
-        #             self.goal_k += 1
-        #             print("next goal" + str(self.goal_k))
-
-        #         self.vel_msg.linear.x = 0.5
-        #         self.vel_msg.linear.y = 0
-        #         self.vel_msg.linear.z = 0
-
-        #         # Angular velocity in the z-axis.
-        #         self.vel_msg.angular.x = 0
-        #         self.vel_msg.angular.y = 0
-        #         self.vel_msg.angular.z = self.angular_vel(self.goal_pose)
-        #         # self.vel_msg.angular.z = 0
-
-        #     elif(self.goal_k == 2):
-
-        #         # Target reached, stop the robot
-        #         self.vel_msg.linear.x = 0
-        #         self.vel_msg.linear.y = 0
-        #         self.vel_msg.linear.z = 0
-
-        #         self.vel_msg.angular.x = 0
-        #         self.vel_msg.angular.y = 0
-        #         self.vel_msg.angular.z = 0
 
         #     # Publish vel_msg
         self.velocity_publisher.publish(self.vel_msg)
@@ -112,6 +76,23 @@ class Husky:
         self.vel_msg.angular.x = 0
         self.vel_msg.angular.y = 0
         self.vel_msg.angular.z = 0
+
+    def update_grid(self, data):
+        # Clear the grid
+        self.grid.data = [0]*self.grid.info.width*self.grid.info.height
+
+        # Mark the human's position as occupied
+        human_x = int((data.pose[1].position.x - self.grid.info.origin.position.x) / self.grid.info.resolution)
+        human_y = int((data.pose[1].position.y - self.grid.info.origin.position.y) / self.grid.info.resolution)
+        self.grid.data[human_y*self.grid.info.width + human_x] = 100  # Occupied cells are marked with 100
+
+        # Mark the robot's position as occupied
+        robot_x = int((data.pose[-1].position.x - self.grid.info.origin.position.x) / self.grid.info.resolution)
+        robot_y = int((data.pose[-1].position.y - self.grid.info.origin.position.y) / self.grid.info.resolution)
+        self.grid.data[robot_y*self.grid.info.width + robot_x] = 100
+
+        # Publish the grid
+        self.pub.publish(self.grid)
 
 
     def callback(self, data):
@@ -130,7 +111,7 @@ class Husky:
         self.robot_pose.x = data.pose[-1].position.x
         self.robot_pose.y = data.pose[-1].position.y
         #self.robot_pose.theta = data.pose[-1].orientation.w*2
-
+        self.update_grid(data)
 
         orientation_q = data.pose[-1].orientation
         orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
@@ -193,8 +174,6 @@ class Husky:
         c_posY = self.robot_pose.y
         c_theta = self.robot_pose.theta
 
-        # print("c_posX = ", c_posX, "c_posY = ", c_posY, "d_posX = ", d_posX, "d_posY = ", d_posY)
-
 
         # Calculating delta X and Y in the robot's global frame
         deltax = d_posX - c_posX
@@ -223,76 +202,11 @@ class Husky:
             beta-=math.pi*2
         if(beta<-math.pi):
             beta+=math.pi*2
-
-        # print("c_theta = ", round(c_theta,4), "rho=", round(rho,4), "alpha = ", round(alpha,4), "beta= ", round(beta,4))
-
-
         # Updating the linear and angular velocities
         c_v = kp * rho
         c_w = ka * alpha + kb * beta
 
-        # Updating current local velocity configurations
-        # if (alpha <= math.pi/2 and alpha >= (-(math.pi/2))):
 
-        # # Forward motion control law
-
-        #     if (alpha > math.pi):
-        #         alpha = math.pi
-        #     if (alpha < -math.pi):
-        #         alpha = -math.pi
-        #     if (beta > math.pi):
-        #         beta = math.pi
-        #     if (beta < -math.pi):
-        #         beta = -math.pi
-
-        #     # Updating the linear and angular velocities
-        #     c_v = kp * rho
-        #     c_w = ka * alpha + kb * beta
-        #     # print(alpha)
-        #     # print(beta)
-
-        #     # Constraining the wheel speeds to less than 16 rad/sec
-        #     if (c_v > 24):
-        #         c_v = 24
-
-        #     if (c_w > 2):
-        #         c_w = 2
-
-        # else:
-
-        #     # Backward motion control law
-        #     alpha = (-c_theta + math.atan2(-(d_posY - c_posY), -(d_posX - c_posX)))
-        #     beta = -c_theta - alpha
-
-        #     while (alpha > math.pi or alpha < -math.pi):
-        #         if (alpha > 0):
-        #             alpha = alpha - 2 * math.pi
-        #             # print(alpha)
-        #         if (alpha < 0):
-        #             alpha = alpha + 2 * math.pi
-        #             # print(alpha)
-
-        #     if (alpha > math.pi):
-        #         alpha = math.pi
-        #     if (alpha < -math.pi):
-        #         alpha = -math.pi
-        #     if (beta > math.pi):
-        #         beta = math.pi
-        #     if (beta < -math.pi):
-        #         beta = -math.pi
-
-        #     # Updating the linear and angular velocities
-        #     c_v = -kp * rho
-        #     c_w = (ka * alpha + kb * beta)
-        #     # print(alpha)
-        #     # print(beta)
-
-        #     # Constraining the wheel speeds to less than 16 rad/sec
-        #     if (c_v < -24):
-        #         c_v = -24
-
-        #     if (c_w < -2):
-        #         c_w = -2
 
         if( c_v > 1.5 ):
             c_v = 1.5
@@ -309,14 +223,6 @@ class Husky:
         self.vel_msg.angular.y = 0
         self.vel_msg.angular.z = c_w
 
-
-        # # Calculating robot wheel speeds -- phi_l and phi_r are the robot's wheel speeds
-        # r = 16.5 			# robot wheel radius in cm
-        # L = 60			# robot chassis radius in cm
-
-        # robot_param_mat = np.array([ [r/2, r/2], [r/(2*L), -r/(2*L)] ])
-        # inv_robot_param_mat = np.linalg.inv(robot_param_mat)
-        # [phi_r, phi_l] = np.matmul( inv_robot_param_mat, [ [c_v], [c_w]] )		# unit rad/sec
 
 
         if abs(c_posX - d_posX) < 1.8 and abs(c_posY - d_posY) < 1.8 and abs(c_theta - d_theta) < 0.4:
@@ -337,10 +243,7 @@ class Husky:
             self.vel_msg.angular.y = 0
             self.vel_msg.angular.z = 0
 
-        #else:
-            # print("one goal point reached, continute to next goal point")
 
-        # return False
 
 
 if __name__ == '__main__':
